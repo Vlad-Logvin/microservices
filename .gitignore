@@ -1,0 +1,6 @@
+/song-service/.gradle/
+/song-service/.idea/
+/resource-service/.gradle/
+/resource-service/.idea/
+/resource-service/web/src/main/resources/application-dev.properties
+/resource-service/resource-service.iml
