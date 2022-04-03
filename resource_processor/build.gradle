@@ -1,0 +1,24 @@
+plugins {
+    id 'java'
+}
+
+ext {
+    springBootVersion = '2.6.5'
+    mp3agic = '0.9.1'
+}
+
+group 'com.epam.processor'
+version '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation group: 'org.springframework.boot', name: 'spring-boot-starter', version: springBootVersion
+    implementation group: 'com.mpatric', name: 'mp3agic', version: mp3agic
+}
+
+test {
+    useJUnitPlatform()
+}

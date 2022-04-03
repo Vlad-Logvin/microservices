@@ -6,4 +6,7 @@
 /resource-service/web/build/
 /resource-service/service/build/
 /song-service/build/
+/resource_processor/build/
+/resource_processor/.idea/
+/resource_processor/.gradle/
 /resource-service/resource-service.iml
