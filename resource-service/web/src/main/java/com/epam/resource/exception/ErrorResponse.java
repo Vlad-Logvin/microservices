@@ -1,4 +1,4 @@
-package com.epam.song_service.exception.handling;
+package com.epam.resource.exception;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
