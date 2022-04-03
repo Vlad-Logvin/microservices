@@ -7,14 +7,19 @@ import com.epam.song_service.service.SongService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Transactional
 @Service
-public record SongServiceImpl(SongRepository songRepository) implements SongService {
+public class SongServiceImpl implements SongService {
+
+    private final SongRepository songRepository;
 
     @Autowired
-    public SongServiceImpl {
+    public SongServiceImpl(SongRepository songRepository) {
+        this.songRepository = songRepository;
     }
 
     @Override

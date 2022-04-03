@@ -9,7 +9,6 @@ ext {
     springBootVersion = '2.6.5'
     lombokVersion = '1.18.20'
     postgresqlVersion = '42.3.3'
-    modelMapperVersion = '3.1.0'
 }
 
 group 'com.epam.song_service'
@@ -24,20 +23,16 @@ dependencies {
     implementation group: 'org.projectlombok', name: 'lombok', version: lombokVersion
     annotationProcessor group: 'org.projectlombok', name: 'lombok', version: lombokVersion
 
-    implementation group: 'org.modelmapper', name: 'modelmapper', version: modelMapperVersion
-
     implementation group: 'org.postgresql', name: 'postgresql', version: postgresqlVersion
 
     implementation group: 'org.springframework.boot', name: 'spring-boot-starter-data-jpa', version: springBootVersion
     implementation group: 'org.springframework.boot', name: 'spring-boot-starter-actuator', version: springBootVersion
 
+    implementation group: 'org.hibernate', name: 'hibernate-entitymanager', version: '5.5.3.Final'
+    implementation group: 'org.hibernate', name: 'hibernate-validator', version: '6.0.17.Final'
+
     implementation group: 'org.springframework.boot', name: 'spring-boot-starter', version: springBootVersion
     implementation group: 'org.springframework.boot', name: 'spring-boot-starter-web', version: springBootVersion
-
-    implementation group: 'org.hibernate', name: 'hibernate-validator', version: '7.0.4.Final'
-
-    implementation group: 'org.json', name: 'json', version: '20220320'
-
 }
 
 test {

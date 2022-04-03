@@ -21,27 +21,27 @@ public class Song implements Serializable {
     private long id;
 
     @Column(name = "name")
-    @NotNull
+    @NotNull(message = "name must not be null")
     private String name;
 
     @Column(name = "artist")
-    @NotNull
+    @NotNull(message = "artist must not be null")
     private String artist;
 
     @Column(name = "album")
-    @NotNull
+    @NotNull(message = "album must not be null")
     private String album;
 
     @Column(name = "length")
-    @NotNull
-    @Length(max = 6)
+    @NotNull(message = "length must not be null")
+    @Length(max = 6, message = "Max length of length field equals 6")
     private String length;
 
     @Column(name = "resource_id")
-    @NotNull
+    @NotNull(message = "resourceId must not be null")
     private Long resourceId;
 
     @Column(name = "year")
-    @NotNull
+    @NotNull(message = "year must not be null")
     private Integer year;
 }
