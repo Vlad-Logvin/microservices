@@ -11,7 +11,6 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 @EnableAutoConfiguration
 @EntityScan("com.epam.resource")
 @ComponentScan("com.epam.resource")
-@Profile("dev")
 @EnableJpaRepositories(basePackages = "com.epam.resource.repository")
 public class PersistenceDevConfiguration {
 

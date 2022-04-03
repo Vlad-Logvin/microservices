@@ -18,7 +18,6 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 @ComponentScan("com.epam.song_service")
 @EnableJpaRepositories(basePackageClasses = SongRepository.class)
 @EnableWebMvc
-@Profile("dev")
 public class AppConfiguration {
 
     @Bean
