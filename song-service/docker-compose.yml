@@ -1,0 +1,20 @@
+services:
+  app:
+    container_name: springboot-song-service
+    image: springboot-song-service
+    build: ./
+    ports:
+      - "8081:8081"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+    depends_on:
+      - postgresql_song_service
+  postgresql_song_service:
+    container_name: postgresql_song_service
+    image: postgres
+    ports:
+      - "5433:5432"
+    environment:
+      - POSTGRES_PASSWORD=root
+      - POSTGRES_USER=postgres
+      - POSTGRES_DB=song_service_db
