@@ -2,5 +2,8 @@
 /song-service/.idea/
 /resource-service/.gradle/
 /resource-service/.idea/
-/resource-service/web/src/main/resources/application-dev.properties
+/resource-service/persistence/build/
+/resource-service/web/build/
+/resource-service/service/build/
+/song-service/build/
 /resource-service/resource-service.iml
