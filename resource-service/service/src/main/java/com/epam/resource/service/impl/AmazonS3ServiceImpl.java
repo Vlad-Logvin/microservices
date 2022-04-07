@@ -20,9 +20,8 @@ public record AmazonS3ServiceImpl(AmazonS3 amazonS3) implements AmazonS3Service 
         try (FileOutputStream fos = new FileOutputStream(convertedFile)) {
             fos.write(file.getBytes());
             amazonS3.putObject(bucketName, key, convertedFile);
-        } catch (AmazonServiceException | IOException e) {
-            System.out.println(e);
-            return false;
+        } catch (Exception e) {
+            throw new AmazonServiceException("Exception occurs during sending file to amazon");
         }
         return true;
     }
@@ -32,9 +31,8 @@ public record AmazonS3ServiceImpl(AmazonS3 amazonS3) implements AmazonS3Service 
         byte[] file;
         try {
             file = amazonS3.getObject(bucketName, fileName).getObjectContent().readAllBytes();
-        } catch (AmazonServiceException | IOException e) {
-            System.out.println(e);
-            return null;
+        }  catch (Exception e) {
+            throw new AmazonServiceException("Exception occurs during getting file from amazon");
         }
         return file;
     }
@@ -43,9 +41,8 @@ public record AmazonS3ServiceImpl(AmazonS3 amazonS3) implements AmazonS3Service 
     public boolean deleteObject(String bucketName, String fileName) {
         try {
             amazonS3.deleteObject(bucketName, fileName);
-        } catch (AmazonServiceException e) {
-            System.out.println(e);
-            return false;
+        }  catch (Exception e) {
+            throw new AmazonServiceException("Exception occurs during deleting file from amazon");
         }
         return true;
     }

@@ -1,5 +1,6 @@
 package com.epam.resource.exception;
 
+import com.amazonaws.AmazonServiceException;
 import com.epam.resource.exception.impl.IdValidationException;
 import com.epam.resource.exception.impl.ResourceNotFoundException;
 import com.epam.resource.exception.impl.ResourceNotValidException;
@@ -33,6 +34,12 @@ public class ExceptionController {
     @ExceptionHandler(ResourceSavingException.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ErrorResponse resourceSavingException(ResourceSavingException e) {
+        return new ErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR.toString(), e.getMessage());
+    }
+
+    @ExceptionHandler(AmazonServiceException.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public ErrorResponse amazonServiceException(AmazonServiceException e) {
         return new ErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR.toString(), e.getMessage());
     }
 }

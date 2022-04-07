@@ -43,5 +43,5 @@ public class Song implements Serializable {
 
     @Column(name = "year")
     @NotNull(message = "year must not be null")
-    private Integer year;
+    private String year;
 }
