@@ -1,5 +1,6 @@
 package com.epam.resource.controller;
 
+import com.epam.resource.configuration.MessageConfiguration;
 import com.epam.resource.dto.ResourceDTO;
 import com.epam.resource.exception.impl.IdValidationException;
 import com.epam.resource.exception.impl.ResourceNotValidException;
@@ -8,6 +9,7 @@ import com.epam.resource.util.Id;
 import com.epam.resource.util.Ids;
 import com.epam.resource.validator.IdValidator;
 import com.epam.resource.validator.Mp3Validator;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.ResponseEntity;
@@ -25,15 +27,17 @@ import java.util.stream.Collectors;
 @RequestMapping("/resources")
 public class ResourceController {
     @Autowired
-    public ResourceController(ResourceService resourceService, Mp3Validator mp3Validator, IdValidator idValidator) {
+    public ResourceController(ResourceService resourceService, Mp3Validator mp3Validator, IdValidator idValidator, RabbitTemplate template) {
         this.resourceService = resourceService;
         this.mp3Validator = mp3Validator;
         this.idValidator = idValidator;
+        this.template = template;
     }
 
     private final ResourceService resourceService;
     private final Mp3Validator mp3Validator;
     private final IdValidator idValidator;
+    private final RabbitTemplate template;
 
     @PostMapping
     public Id save(@RequestParam(value = "file") MultipartFile mp3File) {
@@ -46,7 +50,9 @@ public class ResourceController {
                     .collect(Collectors.joining(", ")));
         }
         ResourceDTO saved = resourceService.save(mp3File);
-        return new Id(saved.getId());
+        Id id = new Id(saved.getId());
+        template.convertAndSend(MessageConfiguration.RESOURCE_SERVICE_EXCHANGE, MessageConfiguration.RESOURCE_SERVICE_KEY, id);
+        return id;
     }
 
     @GetMapping("/{id}")

@@ -1,31 +1,53 @@
 package com.epam.processor.util;
 
+import com.epam.processor.dto.SongDTO;
+import com.epam.processor.exception.InvalidMp3FileException;
 import com.mpatric.mp3agic.InvalidDataException;
 import com.mpatric.mp3agic.Mp3File;
 import com.mpatric.mp3agic.UnsupportedTagException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.io.File;
 import java.io.IOException;
 
-public class Mp3Parser {
-    public static String getArtist(File file) throws InvalidDataException, UnsupportedTagException, IOException {
-        Mp3File mp3File = new Mp3File(file);
-        return mp3File.getId3v1Tag().getArtist();
+@Component
+public record Mp3Parser() {
+
+    @Autowired
+    public Mp3Parser {
     }
-    public static String getAlbum(File file) throws InvalidDataException, UnsupportedTagException, IOException {
-        Mp3File mp3File = new Mp3File(file);
+
+    public SongDTO parseFile(File file) {
+        Mp3File mp3File = createMp3File(file);
+        return new SongDTO(parseName(mp3File), parseArtist(mp3File), parseAlbum(mp3File), parseLength(mp3File), parseYear(mp3File));
+    }
+
+    private Mp3File createMp3File(File file) {
+        try {
+            return new Mp3File(file);
+        } catch (IOException | UnsupportedTagException | InvalidDataException e) {
+            throw new InvalidMp3FileException("MP3 file doesn't valid", "400");
+        }
+    }
+
+    private String parseAlbum(Mp3File mp3File) {
         return mp3File.getId3v1Tag().getAlbum();
     }
-    public static String getTitle(File file) throws InvalidDataException, UnsupportedTagException, IOException {
-        Mp3File mp3File = new Mp3File(file);
+
+    private String parseName(Mp3File mp3File) {
         return mp3File.getId3v1Tag().getTitle();
     }
-    public static long getLengthInSeconds(File file) throws InvalidDataException, UnsupportedTagException, IOException {
-        Mp3File mp3File = new Mp3File(file);
-        return mp3File.getLengthInSeconds();
+
+    private String parseArtist(Mp3File mp3File) {
+        return mp3File.getId3v1Tag().getArtist();
     }
-    public static String getYear(File file) throws InvalidDataException, UnsupportedTagException, IOException {
-        Mp3File mp3File = new Mp3File(file);
+
+    private String parseYear(Mp3File mp3File) {
         return mp3File.getId3v1Tag().getYear();
+    }
+
+    private String parseLength(Mp3File mp3File) {
+        return mp3File.getLengthInSeconds() / 60 + ":" + mp3File.getLengthInSeconds() % 60;
     }
 }
