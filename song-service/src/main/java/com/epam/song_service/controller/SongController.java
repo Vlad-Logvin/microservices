@@ -1,17 +1,19 @@
 package com.epam.song_service.controller;
 
+import com.epam.song_service.controller.validator.IdValidator;
+import com.epam.song_service.exception.SongServiceException;
 import com.epam.song_service.exception.impl.IdValidationException;
 import com.epam.song_service.exception.impl.SongValidationException;
 import com.epam.song_service.model.Song;
 import com.epam.song_service.service.SongService;
 import com.epam.song_service.util.Id;
 import com.epam.song_service.util.Ids;
-import com.epam.song_service.validator.IdValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.MapBindingResult;
+import org.springframework.validation.Validator;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,6 +21,7 @@ import javax.validation.Valid;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 @RestController
@@ -37,12 +40,7 @@ public class SongController {
     @Validated
     @PostMapping
     public Id saveSong(@RequestBody @Valid Song song, BindingResult bindingResult) {
-        if (bindingResult.hasErrors()) {
-            throw new SongValidationException("Not valid body, reason: " + bindingResult.getFieldErrors()
-                    .stream()
-                    .map(DefaultMessageSourceResolvable::getDefaultMessage)
-                    .collect(Collectors.joining(", ")));
-        }
+        checkHasErrors(bindingResult, SongValidationException::new);
         Song saved = songService.save(song);
         return new Id(saved.getId());
     }
@@ -54,17 +52,33 @@ public class SongController {
 
     @DeleteMapping
     public Ids deleteByIds(@RequestParam(value = "id") String ids) {
+        validate(ids, idValidator, IdValidationException::new);
+        return new Ids(songService.deleteByIds(getIds(ids)));
+    }
+
+    private void validate(Object obj, Validator validator, Supplier<? extends SongServiceException> exceptionToThrow) {
         BindingResult bindingResult = new MapBindingResult(new HashMap<>(), "");
-        idValidator.validate(ids, bindingResult);
+        validator.validate(obj, bindingResult);
+        checkHasErrors(bindingResult, exceptionToThrow);
+    }
+
+    private void checkHasErrors(BindingResult bindingResult, Supplier<? extends SongServiceException> exceptionToThrow) {
         if (bindingResult.hasErrors()) {
-            throw new IdValidationException("Not valid, reason: " + bindingResult.getAllErrors()
-                    .stream()
-                    .map(DefaultMessageSourceResolvable::getDefaultMessage)
-                    .collect(Collectors.joining(", ")));
+            SongServiceException exception = exceptionToThrow.get();
+            exception.setErrorMessage(getErrorMessage(bindingResult));
+            exception.setErrorCode(400);
+            throw exception;
         }
-        List<Long> deleted = songService.deleteByIds(Arrays.stream(ids.split(","))
-                .map(Long::valueOf)
-                .toList());
-        return new Ids(deleted);
+    }
+
+    private String getErrorMessage(BindingResult bindingResult) {
+        return "Not valid, reason: " + bindingResult.getAllErrors()
+                .stream()
+                .map(DefaultMessageSourceResolvable::getDefaultMessage)
+                .collect(Collectors.joining(", "));
+    }
+
+    private List<Long> getIds(String ids) {
+        return Arrays.stream(ids.split(",")).map(Long::parseLong).toList();
     }
 }

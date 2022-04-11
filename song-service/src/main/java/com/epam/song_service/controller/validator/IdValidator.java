@@ -1,4 +1,4 @@
-package com.epam.resource.validator;
+package com.epam.song_service.controller.validator;
 
 import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;

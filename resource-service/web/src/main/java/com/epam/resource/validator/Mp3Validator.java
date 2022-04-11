@@ -16,18 +16,30 @@ public class Mp3Validator implements Validator {
     @Override
     public void validate(Object target, Errors errors) {
         if (target instanceof MultipartFile file) {
-            if (!"audio/mpeg".equals(file.getContentType())) {
-                errors.reject("400", "Content type should be audio/mpeg");
-            }
-            if (file.getOriginalFilename() == null || !file.getOriginalFilename().endsWith(".mp3")) {
-                errors.reject("400", "File doesn't have mp3 extension");
-            }
+            validateContentType(errors, file);
+            validateExtension(errors, file);
         } else {
-            if (target != null) {
-                errors.reject("400", "File doesn't cast to mp3");
-            } else {
-                errors.reject("400", "Empty request body");
-            }
+            processInvalid(target, errors);
+        }
+    }
+
+    private void validateContentType(Errors errors, MultipartFile file) {
+        if (!"audio/mpeg".equals(file.getContentType())) {
+            errors.reject("400", "Content type should be audio/mpeg");
+        }
+    }
+
+    private void validateExtension(Errors errors, MultipartFile file) {
+        if (file.getOriginalFilename() == null || !file.getOriginalFilename().endsWith(".mp3")) {
+            errors.reject("400", "File doesn't have mp3 extension");
+        }
+    }
+
+    private void processInvalid(Object target, Errors errors) {
+        if (target != null) {
+            errors.reject("400", "File doesn't cast to mp3");
+        } else {
+            errors.reject("400", "Empty request body");
         }
     }
 }

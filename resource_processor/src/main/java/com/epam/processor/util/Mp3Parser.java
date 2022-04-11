@@ -1,7 +1,7 @@
 package com.epam.processor.util;
 
 import com.epam.processor.dto.SongDTO;
-import com.epam.processor.exception.InvalidMp3FileException;
+import com.epam.processor.exception.impl.InvalidMp3FileException;
 import com.mpatric.mp3agic.InvalidDataException;
 import com.mpatric.mp3agic.Mp3File;
 import com.mpatric.mp3agic.UnsupportedTagException;
@@ -27,7 +27,7 @@ public record Mp3Parser() {
         try {
             return new Mp3File(file);
         } catch (IOException | UnsupportedTagException | InvalidDataException e) {
-            throw new InvalidMp3FileException("MP3 file doesn't valid", "400");
+            throw new InvalidMp3FileException(e, "MP3 file doesn't valid", 400);
         }
     }
 

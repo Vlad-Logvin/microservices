@@ -23,7 +23,7 @@ public class ResourceServiceConsumer {
     }
 
     @RabbitListener(queues = MessageConfiguration.RESOURCE_SERVICE_QUEUE)
-    @Retryable(value = RuntimeException.class, maxAttempts = 5, backoff = @Backoff(20000))
+    @Retryable(value = RuntimeException.class, maxAttempts = 2, backoff = @Backoff(30000))
     public void consumeMessageFromQueue(Id id) {
         queueDataProcessor.processResourceId(id);
     }
