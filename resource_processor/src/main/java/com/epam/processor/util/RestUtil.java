@@ -15,9 +15,6 @@ import java.util.Map;
 
 @Component
 public record RestUtil(RestTemplate restTemplate, MapHelper mapHelper) {
-    @Autowired
-    public RestUtil {
-    }
 
     public <T> ResponseEntity<T> get(String url, Class<T> responseType) {
         try {

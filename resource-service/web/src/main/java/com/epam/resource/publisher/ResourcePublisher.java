@@ -10,10 +10,6 @@ import org.springframework.stereotype.Component;
 
 @Component
 public record ResourcePublisher(RabbitTemplate rabbitTemplate) {
-    @Autowired
-    public ResourcePublisher {
-    }
-
     public void sendToResourceProcessor(Id id) {
         try {
             rabbitTemplate.convertAndSend(MessageConfiguration.RESOURCE_SERVICE_EXCHANGE, MessageConfiguration.RESOURCE_SERVICE_KEY, id);

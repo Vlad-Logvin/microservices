@@ -1,4 +1,4 @@
-package com.epam.resource.validator;
+package com.epam.resource.util.validator;
 
 import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;

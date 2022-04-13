@@ -12,7 +12,6 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 @EntityScan("com.epam.resource")
 @ComponentScan("com.epam.resource")
 @EnableJpaRepositories(basePackages = "com.epam.resource.repository")
-@Profile("dev")
-public class PersistenceDevConfiguration {
-
+@Profile("docker")
+public class PersistenceDockerConfiguration {
 }

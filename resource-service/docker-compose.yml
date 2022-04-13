@@ -24,4 +24,4 @@ services:
     container_name: rabbitmq
     restart: always
     ports:
-      - "5672:5672"
+      - "5673:5672"

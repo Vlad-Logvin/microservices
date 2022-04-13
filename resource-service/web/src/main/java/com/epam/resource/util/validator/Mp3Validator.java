@@ -1,4 +1,4 @@
-package com.epam.resource.validator;
+package com.epam.resource.util.validator;
 
 import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
@@ -30,7 +30,7 @@ public class Mp3Validator implements Validator {
     }
 
     private void validateExtension(Errors errors, MultipartFile file) {
-        if (file.getOriginalFilename() == null || !file.getOriginalFilename().endsWith(".mp3")) {
+        if (!file.getOriginalFilename().endsWith(".mp3")) {
             errors.reject("400", "File doesn't have mp3 extension");
         }
     }

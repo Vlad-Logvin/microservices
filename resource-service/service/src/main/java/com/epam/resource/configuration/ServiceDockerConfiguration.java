@@ -15,8 +15,8 @@ import org.springframework.context.annotation.Profile;
 
 @SpringBootConfiguration
 @ComponentScan("com.epam.resource")
-@Profile("dev")
-public class ServiceDevConfiguration {
+@Profile("docker")
+public class ServiceDockerConfiguration {
 
     @Value("${cloud.aws.access-key}")
     private String accessKey;

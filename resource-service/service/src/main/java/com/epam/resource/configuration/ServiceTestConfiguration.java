@@ -6,6 +6,7 @@ import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
+import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringBootConfiguration;
@@ -14,9 +15,10 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Profile;
 
 @SpringBootConfiguration
-@ComponentScan("com.epam.resource")
-@Profile("dev")
-public class ServiceDevConfiguration {
+@ComponentScan(basePackages = {"com.epam.resource.service", "com.epam.resource.dto"})
+@Profile("test")
+@Slf4j
+public class ServiceTestConfiguration {
 
     @Value("${cloud.aws.access-key}")
     private String accessKey;
@@ -36,9 +38,7 @@ public class ServiceDevConfiguration {
     @Bean
     public ModelMapper serviceModelMapper() {
         ModelMapper modelMapper = new ModelMapper();
-        modelMapper.getConfiguration()
-                .setFieldMatchingEnabled(true)
-                .setFieldAccessLevel(org.modelmapper.config.Configuration.AccessLevel.PRIVATE);
+        modelMapper.getConfiguration().setFieldMatchingEnabled(true).setFieldAccessLevel(org.modelmapper.config.Configuration.AccessLevel.PRIVATE);
         return modelMapper;
     }
 }

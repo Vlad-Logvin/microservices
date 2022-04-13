@@ -22,10 +22,6 @@ public record ResourceServiceImpl(ResourceRepository resourceRepository, AmazonS
 
     private static String bucketName;
 
-    @Autowired
-    public ResourceServiceImpl {
-    }
-
     @Value("${amazon.s3.bucket-name}")
     private void setBucketName(String bucketName) {
         ResourceServiceImpl.bucketName = bucketName;
