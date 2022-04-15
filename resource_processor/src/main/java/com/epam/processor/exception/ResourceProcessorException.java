@@ -1,5 +1,8 @@
 package com.epam.processor.exception;
 
+import lombok.Data;
+
+@Data
 public class ResourceProcessorException extends RuntimeException {
     private Throwable cause;
     private String errorMessage;

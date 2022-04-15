@@ -1,5 +1,5 @@
 services:
-  app:
+  song-service:
     container_name: springboot-song-service
     image: springboot-song-service
     build: ./

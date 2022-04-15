@@ -10,3 +10,5 @@
 /resource_processor/.idea/
 /resource_processor/.gradle/
 /resource-service/resource-service.iml
+*/lib/
+/.idea/
