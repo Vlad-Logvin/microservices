@@ -26,19 +26,26 @@ dependencies {
     implementation group: 'org.postgresql', name: 'postgresql', version: postgresqlVersion
 
     implementation group: 'org.springframework.boot', name: 'spring-boot-starter-data-jpa', version: springBootVersion
-    implementation group: 'org.springframework.boot', name: 'spring-boot-starter-actuator', version: springBootVersion
 
     implementation group: 'org.hibernate', name: 'hibernate-entitymanager', version: '5.5.3.Final'
     implementation group: 'org.hibernate', name: 'hibernate-validator', version: '6.0.17.Final'
+
+    implementation group: 'io.springfox', name: 'springfox-boot-starter', version: '3.0.0'
+    implementation group: 'io.springfox', name: 'springfox-swagger-ui', version: '3.0.0'
+    implementation group: 'org.springframework.cloud', name: 'spring-cloud-starter', version: '3.1.1'
+    implementation group: 'org.springframework.cloud', name: 'spring-cloud-starter-contract-verifier', version: '3.1.1'
+    implementation group: 'org.springframework.cloud', name: 'spring-cloud-contract-gradle-plugin', version: '3.1.1', ext: 'pom'
 
     implementation group: 'org.springframework.boot', name: 'spring-boot-starter', version: springBootVersion
     implementation group: 'org.springframework.boot', name: 'spring-boot-starter-web', version: springBootVersion
 }
 
-run {
-    main = 'com.epam.song_service.SongServiceApplication'
-}
-
 test {
     useJUnitPlatform()
+}
+
+task contractTest(type: Test) {
+    useJUnitPlatform {
+        includeTags 'contract-test'
+    }
 }

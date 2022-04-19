@@ -15,22 +15,41 @@ repositories {
 
 dependencies {
     implementation project(":service")
+    implementation project(":persistence")
 
     implementation 'org.springframework.boot:spring-boot-starter'
-    testImplementation 'org.springframework.boot:spring-boot-starter-test'
 
     implementation group: 'com.amazonaws', name: 'aws-java-sdk-s3', version: '1.12.189'
 
-    implementation group: 'org.hibernate', name: 'hibernate-validator', version: '7.0.4.Final'
+    implementation group: 'org.hibernate', name: 'hibernate-entitymanager', version: '5.5.3.Final'
+    implementation group: 'org.hibernate', name: 'hibernate-validator', version: '6.0.17.Final'
+    implementation group: 'org.springframework.boot', name: 'spring-boot-starter-data-rest', version: '2.6.6'
+
 
     implementation group: 'org.modelmapper', name: 'modelmapper', version: modelMapperVersion
 
     implementation group: 'org.json', name: 'json', version: '20220320'
+    testImplementation group: 'com.h2database', name: 'h2', version: '2.1.212'
 
     implementation group: 'org.springframework.amqp', name: 'spring-rabbit', version: '2.4.3'
     implementation group: 'org.springframework.boot', name: 'spring-boot-starter-web', version: springBootVersion
 }
 
-tasks.named('test') {
-    useJUnitPlatform()
+configurations {
+    cucumberRuntime {
+        extendsFrom testImplementation
+    }
+}
+
+task cucumber() {
+    dependsOn assemble, compileTestJava
+    doLast {
+        javaexec {
+            main = "com.epam.resource.ResourceServiceApplication"
+            classpath = configurations.cucumberRuntime + sourceSets.main.output + sourceSets.test.output
+            args = ['--plugin', 'html:build/reports/tests/cucumber-report.html',
+                    '--plugin', 'pretty', '--glue', 'com.epam.resource', 'src/test/resources',
+                    "--Dspring.profiles.active=test"]
+        }
+    }
 }
