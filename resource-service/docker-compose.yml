@@ -1,5 +1,5 @@
 services:
-  app:
+  resource-service:
     container_name: springboot-resource-service
     image: springboot-resource-service
     build: ./
