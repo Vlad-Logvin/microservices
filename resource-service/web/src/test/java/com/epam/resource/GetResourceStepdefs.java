@@ -4,7 +4,6 @@ import com.epam.resource.dto.ResourceDTO;
 import com.epam.resource.entity.ResourceEntity;
 import com.epam.resource.repository.ResourceRepository;
 import com.epam.resource.service.AmazonS3Service;
-import io.cucumber.java.Before;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
@@ -30,28 +29,25 @@ import java.util.Map;
 @SpringBootTest(classes = CucumberConfiguration.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Tag("component-test")
 public class GetResourceStepdefs {
+    private final Map<ResourceEntity, MultipartFile> savedEntities = new HashMap<>(2);
     @Autowired
     private ResourceRepository resourceRepository;
     @Autowired
     private ModelMapper modelMapper;
     @Autowired
     private AmazonS3Service amazonS3Service;
-
     @Autowired
     private TestRestTemplate template;
-
     @Value("${amazon.s3.bucket-name}")
     private String bucketName;
-
     @LocalServerPort
     private int port;
-
-    private final Map<ResourceEntity, MultipartFile> savedEntities = new HashMap<>(2);
     private byte[] actual;
 
     @Given("^The following resources to get$")
     public void theFollowingResources(List<ResourceDTO> resources) {
-        List<ResourceEntity> toEntities = resources.stream().map(resourceDTO -> modelMapper.map(resourceDTO, ResourceEntity.class)).toList();
+        List<ResourceEntity> toEntities = resources.stream()
+                .map(resourceDTO -> modelMapper.map(resourceDTO, ResourceEntity.class)).toList();
         resourceRepository.saveAllAndFlush(toEntities).forEach((entity) -> {
             MockMultipartFile tempFile = new MockMultipartFile(entity.getFileName(), new byte[]{(byte) entity.getId()});
             savedEntities.put(entity, tempFile);

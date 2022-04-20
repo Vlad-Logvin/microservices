@@ -5,7 +5,6 @@ import com.epam.resource.entity.ResourceEntity;
 import com.epam.resource.exception.impl.AmazonException;
 import com.epam.resource.repository.ResourceRepository;
 import com.epam.resource.service.AmazonS3Service;
-import io.cucumber.java.Before;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
@@ -43,7 +42,8 @@ public class DeleteResourceStepdefs {
 
     @Given("^The following resources to delete$")
     public void theFollowingResources(List<ResourceDTO> resources) {
-        List<ResourceEntity> toEntities = resources.stream().map(resourceDTO -> modelMapper.map(resourceDTO, ResourceEntity.class)).toList();
+        List<ResourceEntity> toEntities = resources.stream()
+                .map(resourceDTO -> modelMapper.map(resourceDTO, ResourceEntity.class)).toList();
         savedInstances = resourceRepository.saveAllAndFlush(toEntities);
         toEntities.forEach(entity -> amazonS3Service.putFile(bucketName, entity.getFileName(), new MockMultipartFile(entity.getFileName(), new byte[]{(byte) entity.getId()})));
         Assertions.assertEquals(2, savedInstances.size());
@@ -59,7 +59,8 @@ public class DeleteResourceStepdefs {
     @Then("Resource Service should delete it")
     public void resourceServiceShouldDeleteIt() {
         List<ResourceEntity> all = resourceRepository.findAll();
-        Assertions.assertThrows(AmazonException.class, () -> amazonS3Service.getFileContent(bucketName, savedInstances.get(0).getFileName()));
+        Assertions.assertThrows(AmazonException.class, () -> amazonS3Service.getFileContent(bucketName, savedInstances.get(0)
+                .getFileName()));
         Assertions.assertNotNull(amazonS3Service.getFileContent(bucketName, savedInstances.get(1).getFileName()));
         Assertions.assertEquals(1, all.size());
         Assertions.assertEquals(savedInstances.get(1), all.get(0));

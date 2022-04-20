@@ -38,7 +38,8 @@ public class ServiceTestConfiguration {
     @Bean
     public ModelMapper serviceModelMapper() {
         ModelMapper modelMapper = new ModelMapper();
-        modelMapper.getConfiguration().setFieldMatchingEnabled(true).setFieldAccessLevel(org.modelmapper.config.Configuration.AccessLevel.PRIVATE);
+        modelMapper.getConfiguration().setFieldMatchingEnabled(true)
+                .setFieldAccessLevel(org.modelmapper.config.Configuration.AccessLevel.PRIVATE);
         return modelMapper;
     }
 }

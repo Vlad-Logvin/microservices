@@ -1,0 +1,6 @@
+services:
+  gateway:
+    container_name: springboot-cloud-gateway
+    build: ./
+    ports:
+      - "8761:8761"
