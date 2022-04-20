@@ -1,49 +1,47 @@
 package com.epam.resource.service.impl;
 
-import com.amazonaws.AmazonServiceException;
+import com.amazonaws.SdkClientException;
 import com.amazonaws.services.s3.AmazonS3;
+import com.epam.resource.exception.impl.AmazonException;
 import com.epam.resource.service.AmazonS3Service;
+import com.epam.resource.service.util.FileUtil;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.Objects;
 
 @Service
-public record AmazonS3ServiceImpl(AmazonS3 amazonS3) implements AmazonS3Service {
+public record AmazonS3ServiceImpl(AmazonS3 amazonS3, FileUtil fileUtil) implements AmazonS3Service {
 
     @Override
-    public boolean putObject(String bucketName, String key, MultipartFile file) {
-        File convertedFile = new File(Objects.requireNonNull(file.getOriginalFilename()));
-        try (FileOutputStream fos = new FileOutputStream(convertedFile)) {
-            fos.write(file.getBytes());
-            amazonS3.putObject(bucketName, key, convertedFile);
-        } catch (Exception e) {
-            throw new AmazonServiceException("Exception occurs during sending file to amazon");
-        }
-        return true;
-    }
-
-    @Override
-    public byte[] getObject(String bucketName, String fileName) {
-        byte[] file;
+    public void putFile(String bucketName, String key, MultipartFile file) {
+        File convertedFile = fileUtil.convertToFile(file);
         try {
-            file = amazonS3.getObject(bucketName, fileName).getObjectContent().readAllBytes();
-        }  catch (Exception e) {
-            throw new AmazonServiceException("Exception occurs during getting file from amazon");
+            amazonS3.putObject(bucketName, key, convertedFile);
+        } catch (SdkClientException e) {
+            throw new AmazonException(e, "Exception was thrown during sending file to amazon s3 bucket", 500);
+        } finally {
+            fileUtil.delete(convertedFile);
         }
-        return file;
+    }
+
+
+    @Override
+    public byte[] getFileContent(String bucketName, String fileName) {
+        try {
+            return amazonS3.getObject(bucketName, fileName).getObjectContent().readAllBytes();
+        } catch (SdkClientException | IOException e) {
+            throw new AmazonException(e, "Exception was thrown during getting file from amazon s3 bucket", 500);
+        }
     }
 
     @Override
-    public boolean deleteObject(String bucketName, String fileName) {
+    public void deleteFile(String bucketName, String fileName) {
         try {
             amazonS3.deleteObject(bucketName, fileName);
-        }  catch (Exception e) {
-            throw new AmazonServiceException("Exception occurs during deleting file from amazon");
+        } catch (SdkClientException e) {
+            throw new AmazonException(e, "Exception was thrown during deleting file from amazon s3 bucket", 500);
         }
-        return true;
     }
 }

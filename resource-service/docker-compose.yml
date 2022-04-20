@@ -1,5 +1,5 @@
 services:
-  app:
+  resource-service:
     container_name: springboot-resource-service
     image: springboot-resource-service
     build: ./
@@ -24,4 +24,4 @@ services:
     container_name: rabbitmq
     restart: always
     ports:
-    - "5672:5672"
+      - "5673:5672"

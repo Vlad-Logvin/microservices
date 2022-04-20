@@ -9,7 +9,6 @@ import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Transactional
 @Service
@@ -30,7 +29,7 @@ public class SongServiceImpl implements SongService {
     @Override
     public Song findById(long id) {
         return songRepository.findById(id)
-                .orElseThrow(() -> new SongNotFoundException("Song with id " + id + " was not found"));
+                .orElseThrow(() -> new SongNotFoundException("Song with id " + id + " was not found", 404));
     }
 
     @Override
@@ -38,6 +37,6 @@ public class SongServiceImpl implements SongService {
         return songRepository.deleteByIdIn(ids)
                 .stream()
                 .map(Song::getId)
-                .collect(Collectors.toList());
+                .toList();
     }
 }
