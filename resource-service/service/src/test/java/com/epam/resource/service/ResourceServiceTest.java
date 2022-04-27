@@ -7,7 +7,6 @@ import com.epam.resource.exception.ResourceServiceException;
 import com.epam.resource.exception.impl.ResourceNotFoundException;
 import com.epam.resource.exception.impl.ResourceSavingException;
 import com.epam.resource.repository.ResourceRepository;
-import com.epam.resource.service.impl.ResourceServiceImpl;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
@@ -42,6 +41,9 @@ class ResourceServiceTest {
     @MockBean
     private ResourceRepository resourceRepository;
 
+    @MockBean
+    private StorageService storageService;
+
     @Autowired
     private ModelMapper modelMapper;
 
@@ -55,17 +57,18 @@ class ResourceServiceTest {
 
     @BeforeEach
     void setUp() {
-        resourceService = new ResourceServiceImpl(resourceRepository, amazonS3Service, modelMapper);
+        //resourceService = new ResourceServiceImpl(resourceRepository, amazonS3Service, modelMapper, storageService);
 
-        filledResourceDTO = new ResourceDTO(1, "test.mp3");
-        filledResourceEntity = new ResourceEntity(1, "test.mp3");
+        filledResourceDTO = new ResourceDTO(1, "test.mp3", 0);
+        filledResourceEntity = new ResourceEntity(1, "test.mp3", 0);
         mp3 = new MockMultipartFile("test.mp3", new byte[]{1});
     }
 
     @Test
     void findById_useFillResourceEntity_returnsBytes() {
         when(resourceRepository.findById(anyLong())).thenReturn(Optional.of(filledResourceEntity));
-        when(amazonS3Service.getFileContent(testBucketName, filledResourceEntity.getFileName())).thenReturn(new byte[]{1});
+        when(amazonS3Service.getFileContent(testBucketName, filledResourceEntity.getFileName())).thenReturn(
+                new byte[]{1});
 
         final byte[] expected = new byte[]{1};
         final byte[] actual = resourceService.findById(1);

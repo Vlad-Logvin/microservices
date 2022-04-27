@@ -12,6 +12,7 @@ services:
       - postgresql_resource_service
       - rabbitmq
       - spring-cloud-gateway
+      - localstack
   postgresql_resource_service:
     container_name: postgresql_resource_service
     image: postgres
@@ -39,14 +40,15 @@ services:
     depends_on:
       - rabbitmq
       - spring-cloud-gateway
-#      - song-service
-#      - resource-service
+  #      - song-service
+  #      - resource-service
   spring-cloud-gateway:
     container_name: springboot-cloud-gateway
     build: ./spring-cloud-gateway
     ports:
       - "8084:8084"
     environment:
+      - SPRING_PROFILES_ACTIVE=docker
       - EUREKA_SERVICE_DISCOVERY_URL=http://eureka:8761
     depends_on:
       - eureka
@@ -55,6 +57,9 @@ services:
     build: ./eureka-service-discovery
     ports:
       - "8671:8671"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - EUREKA_SERVICE_DISCOVERY_URL=http://eureka:8761
   song-service:
     container_name: springboot-song-service
     image: springboot-song-service
@@ -76,3 +81,30 @@ services:
       - POSTGRES_USER=${SONG_SERVICE_POSTGRES_USER}
       - POSTGRES_PASSWORD=${SONG_SERVICE_POSTGRES_PASSWORD}
       - POSTGRES_DB=${SONG_SERVICE_POSTGRES_DB}
+  storage-service:
+    container_name: springboot-storage-service
+    image: springboot-storage-service
+    build: ./storage-service
+    ports:
+      - "8085:8085"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - EUREKA_SERVICE_DISCOVERY_URL=http://eureka:8761
+    depends_on:
+      - postgresql_storage_service
+      - spring-cloud-gateway
+  postgresql_storage_service:
+    container_name: postgresql_storage_service
+    image: postgres
+    ports:
+      - "5435:5432"
+    environment:
+      - POSTGRES_USER=${STORAGE_SERVICE_POSTGRES_USER}
+      - POSTGRES_PASSWORD=${STORAGE_SERVICE_POSTGRES_PASSWORD}
+      - POSTGRES_DB=${STORAGE_SERVICE_POSTGRES_DB}
+  localstack:
+    image: localstack/localstack:latest
+    environment:
+      SERVICES: s3
+    volumes:
+      - ./aws:/docker-entrypoint-initaws.d

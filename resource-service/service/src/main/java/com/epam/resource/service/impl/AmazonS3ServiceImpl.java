@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 
 @Service
@@ -20,12 +21,22 @@ public record AmazonS3ServiceImpl(AmazonS3 amazonS3, FileUtil fileUtil) implemen
         try {
             amazonS3.putObject(bucketName, key, convertedFile);
         } catch (SdkClientException e) {
-            throw new AmazonException(e, "Exception was thrown during sending file to amazon s3 bucket", 500);
+            throw new AmazonException(e,
+                    "Exception was thrown during sending file to amazon s3 bucket. Reason: " + e.getMessage(), 500);
         } finally {
             fileUtil.delete(convertedFile);
         }
     }
 
+    @Override
+    public void moveFile(String srcBucket, String srcKey, String dstBucket, String dstKey) {
+        try {
+            amazonS3.copyObject(srcBucket, srcKey, dstBucket, dstKey);
+            deleteFile(srcBucket, srcKey);
+        } catch (SdkClientException e) {
+            throw new AmazonException(e, "Exception was thrown during moving file in amazon s3 bucket", 500);
+        }
+    }
 
     @Override
     public byte[] getFileContent(String bucketName, String fileName) {

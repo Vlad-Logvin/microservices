@@ -13,7 +13,6 @@ public record ResourcePublisher(RabbitTemplate rabbitTemplate) {
         try {
             rabbitTemplate.convertAndSend(MessageConfiguration.RESOURCE_SERVICE_EXCHANGE, MessageConfiguration.RESOURCE_SERVICE_KEY, id);
         } catch (AmqpException e) {
-            e.printStackTrace();
             throw new RabbitException(e, "Exception was thrown during sending id " + id + " to resource processor!", 500);
         }
     }

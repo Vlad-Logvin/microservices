@@ -33,7 +33,8 @@ public class ResourceController {
     private final ResourcePublisher resourcePublisher;
 
     @Autowired
-    public ResourceController(ResourceService resourceService, Mp3Validator mp3Validator, IdValidator idValidator, ResourcePublisher resourcePublisher) {
+    public ResourceController(ResourceService resourceService, Mp3Validator mp3Validator, IdValidator idValidator,
+                              ResourcePublisher resourcePublisher) {
         this.resourceService = resourceService;
         this.mp3Validator = mp3Validator;
         this.idValidator = idValidator;
@@ -48,6 +49,10 @@ public class ResourceController {
         return id;
     }
 
+    @PostMapping("/{id}")
+    public void updateStorage(@PathVariable long id) {
+        resourceService.updateStorage(id);
+    }
 
     @GetMapping("/{id}")
     public ResponseEntity<byte[]> findMp3File(@PathVariable long id) {
@@ -60,7 +65,8 @@ public class ResourceController {
         return new Ids(resourceService.delete(getIds(ids)));
     }
 
-    private void validate(Object obj, Validator validator, Supplier<? extends ResourceServiceException> exceptionToThrow) {
+    private void validate(Object obj, Validator validator,
+                          Supplier<? extends ResourceServiceException> exceptionToThrow) {
         BindingResult bindingResult = new MapBindingResult(new HashMap<>(), "");
         validator.validate(obj, bindingResult);
         if (bindingResult.hasErrors()) {

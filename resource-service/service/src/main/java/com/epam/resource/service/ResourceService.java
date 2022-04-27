@@ -10,5 +10,7 @@ public interface ResourceService {
 
     ResourceDTO save(MultipartFile mp3File);
 
+    void updateStorage(long id);
+
     List<Long> delete(List<Long> ids);
 }
