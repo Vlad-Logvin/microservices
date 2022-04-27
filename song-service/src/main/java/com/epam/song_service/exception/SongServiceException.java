@@ -9,12 +9,14 @@ public class SongServiceException extends RuntimeException {
     private int errorCode;
 
     public SongServiceException(Throwable cause, String errorMessage, int errorCode) {
+        super(errorMessage, cause);
         this.cause = cause;
         this.errorMessage = errorMessage;
         this.errorCode = errorCode;
     }
 
     public SongServiceException(String errorMessage, int errorCode) {
+        super(errorMessage);
         this.errorMessage = errorMessage;
         this.errorCode = errorCode;
     }

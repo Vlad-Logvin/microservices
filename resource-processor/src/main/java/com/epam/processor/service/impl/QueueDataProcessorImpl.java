@@ -8,12 +8,11 @@ import com.epam.processor.service.ResourceService;
 import com.epam.processor.service.SongService;
 import com.epam.processor.util.FileUtil;
 import com.epam.processor.util.Mp3Parser;
-import feign.Response;
 import lombok.AllArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
-import java.io.IOException;
 
 @Service
 @AllArgsConstructor
@@ -26,13 +25,9 @@ public class QueueDataProcessorImpl implements QueueDataProcessor {
 
     @Override
     public void processResourceId(Id id) {
-        Response response = resourceService.findMp3File(id.getId());
-        if (response.status() == 200) {
-            try {
-                processSuccess(id, response.body().asInputStream().readAllBytes());
-            } catch (IOException e) {
-                throw new ResourceServiceException(e, "Exception occurred during getting body as input stream", 500);
-            }
+        ResponseEntity<byte[]> response = resourceService.findMp3File(id.getId());
+        if (response.getStatusCode().is2xxSuccessful()) {
+            processSuccess(id, response.getBody());
         } else {
             processError(id);
         }
@@ -40,10 +35,12 @@ public class QueueDataProcessorImpl implements QueueDataProcessor {
 
     private void processSuccess(Id id, byte[] responseBody) {
         songService.saveSong(getSongDTO(id, responseBody));
+        resourceService.updateStorage(id.getId());
     }
 
     private void processError(Id id) {
-        throw new ResourceServiceException("Exception occurred due to impossibility of getting resource with id " + id, 500);
+        throw new ResourceServiceException("Exception occurred due to impossibility of getting resource with id " + id,
+                500);
     }
 
     private SongDTO getSongDTO(Id id, byte[] content) {

@@ -6,6 +6,7 @@ import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
 import org.springframework.amqp.support.converter.MessageConverter;
 import org.springframework.boot.SpringBootConfiguration;
+import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.cloud.client.loadbalancer.LoadBalanced;
 import org.springframework.context.annotation.Bean;
 import org.springframework.retry.annotation.EnableRetry;
@@ -45,9 +46,9 @@ public class MessageConfiguration {
         return template;
     }
 
-    @LoadBalanced
     @Bean
-    RestTemplate restTemplate() {
-        return new RestTemplate();
+    @LoadBalanced
+    public RestTemplate restTemplate(RestTemplateBuilder builder) {
+        return builder.build();
     }
 }

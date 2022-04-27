@@ -18,9 +18,6 @@
 /eureka-service-discovery/.gradle/
 /eureka-service-discovery/.idea/
 /eureka-service-discovery/build/
-/spring-cloud-gateway/.gradle/
-/spring-cloud-gateway/.idea/
-/spring-cloud-gateway/build/
-/eureka-service-discovery/.gradle/
-/eureka-service-discovery/.idea/
-/eureka-service-discovery/build/
+/storage-service/.gradle/
+/storage-service/.idea/
+/storage-service/build/

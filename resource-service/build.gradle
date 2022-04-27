@@ -32,10 +32,11 @@ subprojects {
     dependencies {
         implementation group: 'org.projectlombok', name: 'lombok', version: lombokVersion
         annotationProcessor group: 'org.projectlombok', name: 'lombok', version: lombokVersion
-
+        implementation group: 'org.springframework.cloud', name: 'spring-cloud-starter-openfeign', version: '3.1.1'
         implementation group: 'org.springframework.boot', name: 'spring-boot-starter-data-jpa', version: springBootVersion
 
         implementation group: 'org.springframework.cloud', name: 'spring-cloud-starter-netflix-eureka-client', version: '3.1.1'
+        implementation group: 'org.springframework.cloud', name: 'spring-cloud-starter-loadbalancer', version: '3.1.1'
         implementation group: 'io.cucumber', name: 'cucumber-java', version: '7.2.3'
         testImplementation group: 'io.cucumber', name: 'cucumber-junit', version: '7.2.3'
         implementation group: 'io.cucumber', name: 'cucumber-spring', version: '7.2.3'
