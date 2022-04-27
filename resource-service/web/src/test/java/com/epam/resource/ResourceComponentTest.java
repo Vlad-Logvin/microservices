@@ -28,27 +28,25 @@ import java.util.Map;
 @SpringBootTest(classes = CucumberConfiguration.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Tag("component-test")
 public class ResourceComponentTest {
+    @Autowired
+    private AmazonS3 amazonS3;
+    @Autowired
+    private ResourceRepository resourceRepository;
+    @Value("${amazon.s3.bucket-name}")
+    private String bucketName;
+    @Autowired
+    private ObjectMapper objectMapper;
+
     @DataTableType
     public ResourceDTO convert(Map<String, String> entries) {
         return new ResourceDTO(entries.get("filename"));
     }
 
-    @Autowired
-    private AmazonS3 amazonS3;
-
-    @Autowired
-    private ResourceRepository resourceRepository;
-
-    @Value("${amazon.s3.bucket-name}")
-    private String bucketName;
-
-    @Autowired
-    private ObjectMapper objectMapper;
-
     @Before
     public void setUp() {
         ObjectListing objectListing = amazonS3.listObjects(bucketName);
-        String[] keys = objectListing.getObjectSummaries().stream().map(S3ObjectSummary::getKey).toList().toArray(new String[0]);
+        String[] keys = objectListing.getObjectSummaries().stream().map(S3ObjectSummary::getKey).toList()
+                .toArray(new String[0]);
         if (keys.length > 0) {
             DeleteObjectsRequest deleteObjectsRequest = new DeleteObjectsRequest(bucketName).withKeys(keys);
             amazonS3.deleteObjects(deleteObjectsRequest);

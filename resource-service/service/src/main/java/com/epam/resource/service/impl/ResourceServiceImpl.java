@@ -8,7 +8,6 @@ import com.epam.resource.repository.ResourceRepository;
 import com.epam.resource.service.AmazonS3Service;
 import com.epam.resource.service.ResourceService;
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;

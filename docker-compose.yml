@@ -7,9 +7,11 @@ services:
       - "8082:8082"
     environment:
       - SPRING_PROFILES_ACTIVE=docker
+      - EUREKA_SERVICE_DISCOVERY_URL=http://eureka:8761
     depends_on:
       - postgresql_resource_service
       - rabbitmq
+      - spring-cloud-gateway
   postgresql_resource_service:
     container_name: postgresql_resource_service
     image: postgres
@@ -28,13 +30,31 @@ services:
   resource-processor:
     container_name: springboot-resource-processor
     image: springboot-resource-processor
-    build: ./resource_processor
+    build: ./resource-processor
     ports:
       - "8083:8083"
     environment:
       - SPRING_PROFILES_ACTIVE=docker
+      - EUREKA_SERVICE_DISCOVERY_URL=http://eureka:8761
     depends_on:
       - rabbitmq
+      - spring-cloud-gateway
+#      - song-service
+#      - resource-service
+  spring-cloud-gateway:
+    container_name: springboot-cloud-gateway
+    build: ./spring-cloud-gateway
+    ports:
+      - "8084:8084"
+    environment:
+      - EUREKA_SERVICE_DISCOVERY_URL=http://eureka:8761
+    depends_on:
+      - eureka
+  eureka:
+    container_name: eureka
+    build: ./eureka-service-discovery
+    ports:
+      - "8671:8671"
   song-service:
     container_name: springboot-song-service
     image: springboot-song-service
@@ -43,8 +63,10 @@ services:
       - "8081:8081"
     environment:
       - SPRING_PROFILES_ACTIVE=docker
+      - EUREKA_SERVICE_DISCOVERY_URL=http://eureka:8761
     depends_on:
       - postgresql_song_service
+      - spring-cloud-gateway
   postgresql_song_service:
     container_name: postgresql_song_service
     image: postgres
