@@ -9,6 +9,7 @@ import com.epam.storage.web.util.Id;
 import com.epam.storage.web.util.Ids;
 import com.epam.storage.web.validator.IdValidator;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.MapBindingResult;
@@ -25,6 +26,7 @@ import java.util.stream.Collectors;
 
 @RestController
 @Validated
+@Slf4j
 @RequestMapping("/storages")
 @AllArgsConstructor
 public class StorageController {
@@ -33,23 +35,27 @@ public class StorageController {
 
     @GetMapping
     public List<Storage> findAll() {
+        log.info("Find all storages");
         return storageService.findAll();
     }
 
     @GetMapping(value = "/{id}")
     public Storage findById(@PathVariable("id") long id) {
+        log.info("Find storage by id {}", id);
         return storageService.findById(id);
     }
 
     @PostMapping
     public Id save(@RequestBody @Valid Storage storage, BindingResult bindingResult) {
         checkHasErrors(bindingResult, StorageValidationException::new);
+        log.info("Save storage {}", storage);
         return new Id(storageService.save(storage).getId());
     }
 
     @DeleteMapping
     public Ids delete(@RequestParam String ids) {
         validate(ids, idValidator, IdValidationException::new);
+        log.info("Delete storage by ids {}", ids);
         return new Ids(storageService.deleteByIds(getIds(ids)));
     }
 

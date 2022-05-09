@@ -20,6 +20,7 @@ public class ResourceServiceConsumer {
     @RabbitListener(queues = MessageConfiguration.RESOURCE_SERVICE_QUEUE)
     @Retryable(value = RuntimeException.class, maxAttempts = 1)
     public void consumeMessageFromQueue(Id id) {
+        log.info("Listener consumes message from Resource Service Queue. Id: {}", id);
         try {
             queueDataProcessor.processResourceId(id);
         } catch (Exception e) {
