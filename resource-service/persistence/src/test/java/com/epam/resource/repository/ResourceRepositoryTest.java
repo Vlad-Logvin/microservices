@@ -32,7 +32,7 @@ class ResourceRepositoryTest {
 
     @BeforeEach
     void setUp() {
-        resourceEntityWithId = new ResourceEntity(1L, "test1.mp3");
+        resourceEntityWithId = new ResourceEntity(1L, "test1.mp3", 1L);
         resourceEntityWithoutId = new ResourceEntity("test1.mp3");
     }
 

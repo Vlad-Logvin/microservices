@@ -20,6 +20,9 @@ public class ResourceEntity {
     @Column(name = "file_name")
     private String fileName;
 
+    @Column(name = "storageId")
+    private long storageId;
+
     public ResourceEntity(String fileName) {
         this.fileName = fileName;
     }

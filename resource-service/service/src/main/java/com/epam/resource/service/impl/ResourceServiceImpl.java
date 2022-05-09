@@ -1,14 +1,16 @@
 package com.epam.resource.service.impl;
 
 import com.epam.resource.dto.ResourceDTO;
+import com.epam.resource.dto.StorageDTO;
 import com.epam.resource.entity.ResourceEntity;
 import com.epam.resource.exception.impl.ResourceNotFoundException;
 import com.epam.resource.exception.impl.ResourceSavingException;
 import com.epam.resource.repository.ResourceRepository;
 import com.epam.resource.service.AmazonS3Service;
 import com.epam.resource.service.ResourceService;
+import com.epam.resource.service.StorageService;
+import lombok.AllArgsConstructor;
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -16,15 +18,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
-public record ResourceServiceImpl(ResourceRepository resourceRepository, AmazonS3Service amazonS3Service,
-                                  ModelMapper modelMapper) implements ResourceService {
-
-    private static String bucketName;
-
-    @Value("${amazon.s3.bucket-name}")
-    private void setBucketName(String bucketName) {
-        ResourceServiceImpl.bucketName = bucketName;
-    }
+@AllArgsConstructor
+public class ResourceServiceImpl implements ResourceService {
+    private final ResourceRepository resourceRepository;
+    private final AmazonS3Service amazonS3Service;
+    private final ModelMapper modelMapper;
+    private final StorageService storageService;
+    private final StorageService.StorageTypeFilter storageTypeFilter;
 
     @Override
     public byte[] findById(long id) {
@@ -36,8 +36,19 @@ public record ResourceServiceImpl(ResourceRepository resourceRepository, AmazonS
     @Override
     public ResourceDTO save(MultipartFile mp3File) {
         String fileName = getFileName(mp3File);
-        processSavingToAmazonS3(mp3File, fileName);
-        return entityToDto(processSavingToDatabase(fileName));
+        StorageDTO stagingStorage = storageTypeFilter.findStagingStorage();
+        processSavingToAmazonS3(mp3File, fileName, stagingStorage);
+        return entityToDto(processSavingToDatabase(fileName, stagingStorage));
+    }
+
+    @Override
+    public void updateStorage(long id) {
+        ResourceEntity resource = resourceRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Resource with id " + id + " was not found", 400));
+        StorageDTO permanentStorage = storageTypeFilter.findPermanentStorage();
+        processMovingInAmazonS3(resource, storageService.findById(resource.getStorageId()), permanentStorage);
+        resource.setStorageId(permanentStorage.getId());
+        resourceRepository.save(resource);
     }
 
     @Override
@@ -47,26 +58,39 @@ public record ResourceServiceImpl(ResourceRepository resourceRepository, AmazonS
         return deletedIds;
     }
 
-
-    private void processSavingToAmazonS3(MultipartFile mp3File, String fileName) {
-        amazonS3Service.putFile(bucketName, fileName, mp3File);
+    private void processSavingToAmazonS3(MultipartFile mp3File, String fileName, StorageDTO storageDTO) {
+        amazonS3Service.putFile(storageDTO.getBucket(),
+                (storageDTO.getPath() != null ? storageDTO.getPath() : "") + fileName, mp3File);
     }
 
-    private ResourceEntity processSavingToDatabase(String fileName) {
+    private void processMovingInAmazonS3(ResourceEntity resource, StorageDTO currentStorage,
+                                         StorageDTO destinationStorage) {
+        amazonS3Service.moveFile(currentStorage.getBucket(),
+                (currentStorage.getPath() != null ? currentStorage.getPath() : "") + resource.getFileName(),
+                destinationStorage.getBucket(),
+                (destinationStorage.getPath() != null ? destinationStorage.getPath() : "") + resource.getFileName());
+    }
+
+    private ResourceEntity processSavingToDatabase(String fileName, StorageDTO storageDTO) {
         try {
-            return resourceRepository.save(new ResourceEntity(fileName));
+            return resourceRepository.save(new ResourceEntity(0, fileName, storageDTO.getId()));
         } catch (Exception e) {
-            throw new ResourceSavingException(e, "File " + fileName + " wasn't saved in database! Please delete it in amazon s3", 500);
+            throw new ResourceSavingException(e,
+                    "File " + fileName + " wasn't saved in database! Please delete it in amazon s3", 500);
         }
     }
 
     private byte[] processGetting(ResourceEntity resource) {
-        return amazonS3Service.getFileContent(bucketName, resource.getFileName());
+        StorageDTO storage = storageService.findById(resource.getStorageId());
+        return amazonS3Service.getFileContent(storage.getBucket(),
+                (storage.getPath() != null ? storage.getPath() : "") + resource.getFileName());
     }
 
     private void processDeleting(List<Long> deletedIds, Long id) {
         resourceRepository.findById(id).ifPresent(entity -> {
-            amazonS3Service.deleteFile(bucketName, entity.getFileName());
+            StorageDTO storage = storageService.findById(entity.getStorageId());
+            amazonS3Service.deleteFile(storage.getBucket(),
+                    (storage.getPath() != null ? storage.getPath() : "") + entity.getFileName());
             resourceRepository.delete(entity);
             deletedIds.add(entity.getId());
         });
@@ -79,4 +103,5 @@ public record ResourceServiceImpl(ResourceRepository resourceRepository, AmazonS
     private String getFileName(MultipartFile mp3File) {
         return System.currentTimeMillis() + "_" + mp3File.getOriginalFilename();
     }
+
 }

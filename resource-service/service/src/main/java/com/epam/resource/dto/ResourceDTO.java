@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 public class ResourceDTO {
     private long id;
     private String fileName;
+    private long storageId;
 
     public ResourceDTO(String fileName) {
         this.fileName = fileName;
