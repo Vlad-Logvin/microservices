@@ -12,10 +12,12 @@ dependencies {
 
     implementation group: 'com.amazonaws', name: 'aws-java-sdk-s3', version: '1.12.189'
 
+    implementation group: 'io.github.resilience4j', name: 'resilience4j-circuitbreaker', version: '1.7.1'
+    implementation group: 'io.github.resilience4j', name: 'resilience4j-spring-boot2', version: '1.7.1'
+
     implementation group: 'org.modelmapper', name: 'modelmapper', version: modelMapperVersion
 
     implementation group: 'commons-io', name: 'commons-io', version: '2.11.0'
-
 
     implementation group: 'org.springframework.boot', name: 'spring-boot-starter', version: springBootVersion
     implementation group: 'org.springframework.boot', name: 'spring-boot-starter-web', version: springBootVersion

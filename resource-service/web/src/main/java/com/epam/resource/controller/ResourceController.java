@@ -9,6 +9,7 @@ import com.epam.resource.util.Id;
 import com.epam.resource.util.Ids;
 import com.epam.resource.util.validator.IdValidator;
 import com.epam.resource.util.validator.Mp3Validator;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.ResponseEntity;
@@ -25,6 +26,7 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 @RestController
+@Slf4j
 @RequestMapping("/resources")
 public class ResourceController {
     private final ResourceService resourceService;
@@ -33,7 +35,8 @@ public class ResourceController {
     private final ResourcePublisher resourcePublisher;
 
     @Autowired
-    public ResourceController(ResourceService resourceService, Mp3Validator mp3Validator, IdValidator idValidator, ResourcePublisher resourcePublisher) {
+    public ResourceController(ResourceService resourceService, Mp3Validator mp3Validator, IdValidator idValidator,
+                              ResourcePublisher resourcePublisher) {
         this.resourceService = resourceService;
         this.mp3Validator = mp3Validator;
         this.idValidator = idValidator;
@@ -43,24 +46,33 @@ public class ResourceController {
     @PostMapping
     public Id save(@RequestParam(value = "file") MultipartFile mp3File) {
         validate(mp3File, mp3Validator, ResourceNotValidException::new);
+        log.info("Save resource {}", mp3File.getOriginalFilename());
         Id id = new Id(resourceService.save(mp3File).getId());
         resourcePublisher.sendToResourceProcessor(id);
         return id;
     }
 
+    @PostMapping("/{id}")
+    public void updateStorage(@PathVariable long id) {
+        log.info("Update storage {}", id);
+        resourceService.updateStorage(id);
+    }
 
     @GetMapping("/{id}")
     public ResponseEntity<byte[]> findMp3File(@PathVariable long id) {
+        log.info("Find mp3 file {}", id);
         return ResponseEntity.ok(resourceService.findById(id));
     }
 
     @DeleteMapping
     public Ids deleteMp3Files(@RequestParam("id") String ids) {
         validate(ids, idValidator, IdValidationException::new);
+        log.info("Delete by ids {}", ids);
         return new Ids(resourceService.delete(getIds(ids)));
     }
 
-    private void validate(Object obj, Validator validator, Supplier<? extends ResourceServiceException> exceptionToThrow) {
+    private void validate(Object obj, Validator validator,
+                          Supplier<? extends ResourceServiceException> exceptionToThrow) {
         BindingResult bindingResult = new MapBindingResult(new HashMap<>(), "");
         validator.validate(obj, bindingResult);
         if (bindingResult.hasErrors()) {

@@ -8,6 +8,7 @@ import com.epam.song_service.model.Song;
 import com.epam.song_service.service.SongService;
 import com.epam.song_service.util.Id;
 import com.epam.song_service.util.Ids;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.ResponseEntity;
@@ -25,6 +26,7 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 @RestController
+@Slf4j
 @RequestMapping("/songs")
 public class SongController {
 
@@ -41,18 +43,21 @@ public class SongController {
     @PostMapping
     public Id saveSong(@RequestBody @Valid Song song, BindingResult bindingResult) {
         checkHasErrors(bindingResult, SongValidationException::new);
+        log.info("Save song {}", song);
         Song saved = songService.save(song);
         return new Id(saved.getId());
     }
 
     @GetMapping(value = "/{id}")
     public ResponseEntity<Song> findById(@PathVariable("id") long id) {
+        log.info("Find song by id {}", id);
         return ResponseEntity.ok(songService.findById(id));
     }
 
     @DeleteMapping
     public Ids deleteByIds(@RequestParam(value = "id") String ids) {
         validate(ids, idValidator, IdValidationException::new);
+        log.info("Delete songs by ids {}", ids);
         return new Ids(songService.deleteByIds(getIds(ids)));
     }
 
@@ -62,7 +67,8 @@ public class SongController {
         checkHasErrors(bindingResult, exceptionToThrow);
     }
 
-    private void checkHasErrors(BindingResult bindingResult, Supplier<? extends SongServiceException> exceptionToThrow) {
+    private void checkHasErrors(BindingResult bindingResult,
+                                Supplier<? extends SongServiceException> exceptionToThrow) {
         if (bindingResult.hasErrors()) {
             SongServiceException exception = exceptionToThrow.get();
             exception.setErrorMessage(getErrorMessage(bindingResult));

@@ -20,7 +20,8 @@ public record Mp3Parser() {
 
     public SongDTO parseFile(File file) {
         Mp3File mp3File = createMp3File(file);
-        return new SongDTO(parseName(mp3File), parseArtist(mp3File), parseAlbum(mp3File), parseLength(mp3File), parseYear(mp3File));
+        return new SongDTO(parseName(mp3File), parseArtist(mp3File), parseAlbum(mp3File), parseLength(mp3File),
+                parseYear(mp3File));
     }
 
     private Mp3File createMp3File(File file) {

@@ -12,6 +12,7 @@ services:
       - postgresql_resource_service
       - rabbitmq
       - spring-cloud-gateway
+      - localstack
   postgresql_resource_service:
     container_name: postgresql_resource_service
     image: postgres
@@ -39,14 +40,15 @@ services:
     depends_on:
       - rabbitmq
       - spring-cloud-gateway
-#      - song-service
-#      - resource-service
+  #      - song-service
+  #      - resource-service
   spring-cloud-gateway:
     container_name: springboot-cloud-gateway
     build: ./spring-cloud-gateway
     ports:
       - "8084:8084"
     environment:
+      - SPRING_PROFILES_ACTIVE=docker
       - EUREKA_SERVICE_DISCOVERY_URL=http://eureka:8761
     depends_on:
       - eureka
@@ -55,6 +57,9 @@ services:
     build: ./eureka-service-discovery
     ports:
       - "8671:8671"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - EUREKA_SERVICE_DISCOVERY_URL=http://eureka:8761
   song-service:
     container_name: springboot-song-service
     image: springboot-song-service
@@ -76,3 +81,63 @@ services:
       - POSTGRES_USER=${SONG_SERVICE_POSTGRES_USER}
       - POSTGRES_PASSWORD=${SONG_SERVICE_POSTGRES_PASSWORD}
       - POSTGRES_DB=${SONG_SERVICE_POSTGRES_DB}
+  storage-service:
+    container_name: springboot-storage-service
+    image: springboot-storage-service
+    build: ./storage-service
+    ports:
+      - "8085:8085"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - EUREKA_SERVICE_DISCOVERY_URL=http://eureka:8761
+    depends_on:
+      - postgresql_storage_service
+      - spring-cloud-gateway
+  postgresql_storage_service:
+    container_name: postgresql_storage_service
+    image: postgres
+    ports:
+      - "5435:5432"
+    environment:
+      - POSTGRES_USER=${STORAGE_SERVICE_POSTGRES_USER}
+      - POSTGRES_PASSWORD=${STORAGE_SERVICE_POSTGRES_PASSWORD}
+      - POSTGRES_DB=${STORAGE_SERVICE_POSTGRES_DB}
+  localstack:
+    image: localstack/localstack:latest
+    user: root
+    environment:
+      SERVICES: s3
+    volumes:
+      - ./aws:/docker-entrypoint-initaws.d:ro
+  elasticsearch:
+    image: elasticsearch:8.1.3
+    volumes:
+      - ./elasticsearch/data:/usr/share/elasticsearch/data:rw
+  logstash:
+    image: logstash:8.1.3
+    command: -f /etc/logstash/conf.d/
+    environment:
+      ELASTICSEARCH_HOST: elasticsearch
+      BEATS_PORT: 5044
+    volumes:
+      - ./logstash:/etc/logstash/conf.d:ro
+    depends_on:
+      - elasticsearch
+  kibana:
+    image: kibana:8.1.3
+    depends_on:
+      - elasticsearch
+    ports:
+      - "5601:5601"
+  filebeat:
+    image: elastic/filebeat:8.1.3
+    user: root
+    command: filebeat -e -strict.perms=false
+    volumes:
+      - ./filebeat-docker.yml:/usr/share/filebeat/filebeat.yml:ro
+      - /var/lib/docker/containers/:/var/lib/docker/containers/:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    depends_on:
+      - logstash
+    environment:
+      LOGSTASH_HOST: logstash
