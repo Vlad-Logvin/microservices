@@ -21,3 +21,4 @@
 /storage-service/.gradle/
 /storage-service/.idea/
 /storage-service/build/
+/elasticsearch

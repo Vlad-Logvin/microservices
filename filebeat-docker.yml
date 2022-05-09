@@ -1,0 +1,18 @@
+filebeat.autodiscover:
+  providers:
+    - type: docker
+      templates:
+        - config:
+            - type: docker
+              containers.ids:
+                - "${data.docker.container.id}"
+            - log:
+                input:
+                  type: docker
+                  containers.ids:
+                    - "${data.docker.container.id}"
+              slowlog:
+                var.hosts: [ "${data.host}:${data.port}" ]
+
+output.logstash:
+  hosts: "${LOGSTASH_HOST:localhost}:5044"

@@ -40,6 +40,8 @@ dependencies {
 
     implementation 'org.projectlombok:lombok:1.18.22'
     annotationProcessor 'org.projectlombok:lombok:1.18.22'
+    implementation group: 'net.logstash.logback', name: 'logstash-logback-encoder', version: '7.1.1'
+
 }
 
 test {
