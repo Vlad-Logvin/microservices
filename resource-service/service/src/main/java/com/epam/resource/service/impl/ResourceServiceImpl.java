@@ -46,7 +46,8 @@ public class ResourceServiceImpl implements ResourceService {
         ResourceEntity resource = resourceRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Resource with id " + id + " was not found", 400));
         StorageDTO permanentStorage = storageTypeFilter.findPermanentStorage();
-        processMovingInAmazonS3(resource, storageService.findById(resource.getStorageId()), permanentStorage);
+        processMovingInAmazonS3(resource,
+                storageService.findById(resource.getStorageId(), storageTypeFilter.getJwtToken()), permanentStorage);
         resource.setStorageId(permanentStorage.getId());
         resourceRepository.save(resource);
     }
@@ -81,14 +82,14 @@ public class ResourceServiceImpl implements ResourceService {
     }
 
     private byte[] processGetting(ResourceEntity resource) {
-        StorageDTO storage = storageService.findById(resource.getStorageId());
+        StorageDTO storage = storageService.findById(resource.getStorageId(), storageTypeFilter.getJwtToken());
         return amazonS3Service.getFileContent(storage.getBucket(),
                 (storage.getPath() != null ? storage.getPath() : "") + resource.getFileName());
     }
 
     private void processDeleting(List<Long> deletedIds, Long id) {
         resourceRepository.findById(id).ifPresent(entity -> {
-            StorageDTO storage = storageService.findById(entity.getStorageId());
+            StorageDTO storage = storageService.findById(entity.getStorageId(), storageTypeFilter.getJwtToken());
             amazonS3Service.deleteFile(storage.getBucket(),
                     (storage.getPath() != null ? storage.getPath() : "") + entity.getFileName());
             resourceRepository.delete(entity);

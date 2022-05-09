@@ -21,4 +21,7 @@
 /storage-service/.gradle/
 /storage-service/.idea/
 /storage-service/build/
+/spring-authorization-server/.gradle/
+/spring-authorization-server/.idea/
+/spring-authorization-server/build/
 /elasticsearch

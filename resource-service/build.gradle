@@ -1,10 +1,10 @@
 plugins {
-    id 'org.springframework.boot' version '2.6.5'
+    id 'org.springframework.boot' version '2.6.7'
     id 'io.spring.dependency-management' version '1.0.11.RELEASE'
 }
 
 ext {
-    springBootVersion = '2.6.5'
+    springBootVersion = '2.6.7'
     postgresqlVersion = '42.3.3'
     hibernateVersion = '5.6.7.Final'
     lombokVersion = '1.18.20'
@@ -46,7 +46,7 @@ subprojects {
         implementation group: 'org.springframework.cloud', name: 'spring-cloud-starter', version: '3.1.1'
         implementation group: 'org.springframework.cloud', name: 'spring-cloud-starter-contract-verifier', version: '3.1.1'
 
-        testImplementation group: 'org.springframework.boot', name: 'spring-boot-starter-test', version: '2.6.6'
+        testImplementation group: 'org.springframework.boot', name: 'spring-boot-starter-test', version: '2.6.7'
         implementation group: 'net.logstash.logback', name: 'logstash-logback-encoder', version: '7.1.1'
 
     }
